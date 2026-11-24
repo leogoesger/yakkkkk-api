@@ -1,0 +1,27 @@
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data # certificates
+      - caddy_config:/config
+    depends_on:
+      - proxy
+
+  # Temporary stand-in that echoes requests, until the Go proxy exists (Phase 4).
+  # No ports: only reachable from Caddy on the internal network.
+  proxy:
+    image: ${PROXY_IMAGE:-traefik/whoami}
+    restart: unless-stopped
+    command: ["--port", "8080"]
+
+volumes:
+  caddy_data:
+  caddy_config:

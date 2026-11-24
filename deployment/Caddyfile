@@ -1,0 +1,10 @@
+# Caddy gets and renews the certificate for {$DOMAIN} and redirects HTTP to HTTPS.
+{$DOMAIN} {
+	# JSON access logs to stdout. Caddy redacts Authorization and Cookie headers.
+	log {
+		output stdout
+		format json
+	}
+
+	reverse_proxy proxy:8080
+}
