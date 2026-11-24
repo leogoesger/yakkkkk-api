@@ -15,12 +15,11 @@ services:
     depends_on:
       - proxy
 
-  # Temporary stand-in that echoes requests, until the Go proxy exists (Phase 4).
-  # No ports: only reachable from Caddy on the internal network.
+  # The Go app. No ports: only reachable from Caddy on the internal network.
   proxy:
-    image: ${PROXY_IMAGE:-traefik/whoami}
+    image: ${PROXY_IMAGE:?set PROXY_IMAGE in .env}
     restart: unless-stopped
-    command: ["--port", "8080"]
+    env_file: proxy.env # app settings and secrets; see proxy.env.example
 
 volumes:
   caddy_data:

@@ -10,7 +10,7 @@ variable "region" {
 
 variable "size" {
   type    = string
-  default = "s-1vcpu-512mb-10gb" # $6/month
+  default = "s-1vcpu-512mb-10gb" # $4/month, 512 MB RAM
 }
 
 variable "image" {

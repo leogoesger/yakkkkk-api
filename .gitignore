@@ -9,3 +9,4 @@ crash.log
 
 # Secrets
 .env
+proxy.env

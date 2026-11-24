@@ -12,6 +12,13 @@ apt-get update
 apt-get -y upgrade
 apt-get -y install ca-certificates curl unattended-upgrades
 
+# 1 GB swap so small droplets (512 MB) can build images without running out of memory
+if ! swapon --show | grep -q /swapfile; then
+  [ -f /swapfile ] || { fallocate -l 1G /swapfile && chmod 600 /swapfile && mkswap /swapfile; }
+  swapon /swapfile
+fi
+grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+
 # Automatic security updates
 cat > /etc/apt/apt.conf.d/20auto-upgrades <<'CONF'
 APT::Periodic::Update-Package-Lists "1";
@@ -30,7 +37,7 @@ systemctl try-reload-or-restart ssh
 # Docker Engine and Compose, from the distribution's packages
 . /etc/os-release
 if [ "$ID" = ubuntu ]; then
-  apt-get -y install docker.io docker-compose-v2
+  apt-get -y install docker.io docker-compose-v2 docker-buildx
 else
   apt-get -y install docker.io docker-compose
 fi
