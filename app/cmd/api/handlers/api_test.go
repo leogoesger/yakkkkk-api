@@ -198,3 +198,28 @@ func TestWaterRouteReachesUpstream(t *testing.T) {
 		t.Errorf("got %d %s", resp.StatusCode, body)
 	}
 }
+
+func TestCORS(t *testing.T) {
+	srv, _, _ := setup(t, nil)
+
+	req, _ := http.NewRequest("OPTIONS", srv.URL+"/proxy/cdec", nil)
+	req.Header.Set("Origin", "https://hydro.example")
+	req.Header.Set("Access-Control-Request-Method", "POST")
+	req.Header.Set("Access-Control-Request-Headers", "content-type")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != 204 || resp.Header.Get("Access-Control-Allow-Origin") != "*" ||
+		!strings.Contains(resp.Header.Get("Access-Control-Allow-Methods"), "POST") ||
+		!strings.EqualFold(resp.Header.Get("Access-Control-Allow-Headers"), "content-type") {
+		t.Errorf("preflight: %d %v", resp.StatusCode, resp.Header)
+	}
+
+	// Actual responses, including errors, carry the header too.
+	resp, _ = do(t, "GET", srv.URL+"/proxy/noaa", "", "")
+	if resp.StatusCode != 400 || resp.Header.Get("Access-Control-Allow-Origin") != "*" {
+		t.Errorf("GET: %d %v", resp.StatusCode, resp.Header)
+	}
+}

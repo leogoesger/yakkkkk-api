@@ -22,6 +22,14 @@ func NewApp(mw ...Middleware) *App {
 	return &App{mux: chi.NewRouter(), mw: mw}
 }
 
+// Use adds middleware that runs before routing, for every request including
+// unmatched paths and methods (e.g. CORS preflight). Call it before adding routes.
+func (a *App) Use(mw ...Middleware) {
+	for _, m := range mw {
+		a.mux.Use(m)
+	}
+}
+
 // Handle associates a handler with an HTTP method and URL pattern.
 // Route middleware runs after the application middleware, in the order given.
 func (a *App) Handle(method, url string, h http.Handler, mw ...Middleware) {

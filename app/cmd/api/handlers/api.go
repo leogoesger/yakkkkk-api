@@ -28,6 +28,7 @@ func NewAPI(cfg *config.Config, log *slog.Logger, version string, transport http
 	app := web.NewApp(
 		mid.Logger(log),
 	)
+	app.Use(mid.CORS)
 
 	handler := api{
 		App:       app,
